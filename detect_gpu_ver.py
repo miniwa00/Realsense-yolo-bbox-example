@@ -1,3 +1,4 @@
+import time
 import cv2
 from realsense_depth import *
 from ultralytics import YOLO
@@ -35,8 +36,11 @@ def cv2_show(color: tuple):
 
 cam = Realsense()
 cv2.namedWindow("detection")
+frame_count = 0
+start_time = time.time()
 while True:
     _, depth_frame, img = cam.get_frame()
+    frame_count += 1
     try:
         res = model(img)
         results = res[0].boxes
@@ -46,7 +50,7 @@ while True:
             # if class_name != "person":
             #     continue
             conf = boxes.conf[0].to().cpu().numpy()
-            if conf < 0.8:
+            if conf < 0.7:
                 continue
             point = ((x1 + x2) // 2, (y1 + y2) // 2)
             distance = depth_frame[point[1], point[0]]
@@ -56,6 +60,13 @@ while True:
                 cv2_show((0, 255, 0))
     except Exception as e:
         pass
+    current_time = time.time()
+    elapsed_time = current_time - start_time
+    if elapsed_time >= 1:
+        fps = frame_count / elapsed_time
+        print("FPS:", int(fps))
+        frame_count = 0
+        start_time = time.time()
     cv2.imshow("detection", img)
     key = cv2.waitKey(1)
     if key == 27:
