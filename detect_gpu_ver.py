@@ -13,7 +13,7 @@ def cv2_show(color: tuple):
     cv2.putText(img, class_name, (x1, y1 - 10), font, 0.7, color, 2, cv2.LINE_AA)
     cv2.putText(
         img,
-        "{}%".format(round(float(conf) * 100, 2)),
+        "{}%".format(round(conf * 100, 2)),
         (x1 + 10, y2 - 30),
         font,
         0.5,
@@ -45,8 +45,8 @@ while True:
             class_name = res[0].names[int(boxes.cls[0])]
             # if class_name != "person":
             #     continue
-            conf = str(boxes.conf[0].to().cpu().numpy())
-            if float(conf) < 0.8:
+            conf = boxes.conf[0].to().cpu().numpy()
+            if conf < 0.8:
                 continue
             point = ((x1 + x2) // 2, (y1 + y2) // 2)
             distance = depth_frame[point[1], point[0]]
